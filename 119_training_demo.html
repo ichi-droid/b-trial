@@ -201,6 +201,7 @@
     <textarea id="answer" placeholder="ここに回答を入力してください"></textarea>
 
     <div class="actions">
+      <button class="secondary" id="backBtn" type="button">1つ前の質問に戻る</button>
       <button class="secondary" id="speakBtn" type="button">質問を読み上げる</button>
       <button class="secondary" id="micBtn" type="button">マイクで回答</button>
       <button class="primary" id="submitBtn" type="button">回答する</button>
@@ -217,8 +218,8 @@
     {
       text: "火事ですか、救急ですか？",
       note: "",
-      check: (v) => /火事|火災/.test(v),
-      ng: "今回は火災の通報です。「火事です」「火災です」など、火災であることを伝えてください。"
+      check: (v) => /火事|火災|かじ|かさい|カジ|カサイ/.test(v),
+      ng: "今回は火災の通報です。「火事」「火災」「かじ」「かさい」「カジ」「カサイ」などを含めて答えてください。"
     },
     {
       text: "場所を教えてください。住所や建物名は分かりますか？",
@@ -229,14 +230,8 @@
     {
       text: "建物の何階が燃えていますか？",
       note: "",
-      check: (v) => /2\s*階|二\s*階|２\s*階/.test(v),
+      check: (v) => /2|２|二/.test(v),
       ng: "シナリオを確認して、燃えている階を伝えてください。"
-    },
-    {
-      text: "けが人や逃げ遅れた人はいますか？",
-      note: "",
-      check: (v) => /いません|いない|なし|ありません|不明|わかりません|分かりません|います|いる|あり/.test(v),
-      ng: "けが人や逃げ遅れた人の有無を伝えてください。分からない場合は「不明です」でも構いません。"
     }
   ];
 
@@ -253,6 +248,7 @@
   const speakBtn = document.getElementById("speakBtn");
   const micBtn = document.getElementById("micBtn");
   const resetBtn = document.getElementById("resetBtn");
+  const backBtn = document.getElementById("backBtn");
 
   function hasAddressLike(v){
     const s = v.replace(/\s+/g, "");
@@ -299,6 +295,7 @@
     stepLabel.textContent = `質問 ${index + 1} / ${questions.length}`;
     question.textContent = q.text;
     note.textContent = q.note;
+    backBtn.disabled = index === 0;
     answer.focus();
   }
 
@@ -322,6 +319,13 @@
     } else {
       feedback.className = "feedback ng";
       feedback.textContent = q.ng;
+    }
+  }
+
+  function goBack(){
+    if(index > 0){
+      index--;
+      render();
     }
   }
 
@@ -370,6 +374,8 @@
     index = 0;
     render();
   });
+  backBtn.addEventListener("click", goBack);
+
   answer.addEventListener("keydown", (e) => {
     if((e.ctrlKey || e.metaKey) && e.key === "Enter") submit();
   });
